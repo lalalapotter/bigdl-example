@@ -32,3 +32,5 @@ Please follow the steps to run the example.
     ```shell
     ./spark-submit.sh
     ```
+
+Note that, if you are using bigdl-2.0, please use `tf2` backend instead of `ray` and use the bigdl-2.0 dependencies. Other than that, you don't need to modify any code.
