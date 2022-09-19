@@ -18,6 +18,13 @@ Please follow the steps to run the example.
   ```shell
   conda pack -o environment.tar.gz
   ```
+
+4. Generate random data using `data.py`.
+  You should change the path in data.py to your own HDFS path, and replace the HDFS path in titanic_large.py as well. Note that the model save path in titanic_large.py also should be replace to your own HDFS path.
+  
+  ```shell
+  python data.py
+  ```
   
 4. Submit application.
   ```shell
