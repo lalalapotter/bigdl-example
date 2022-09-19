@@ -1,28 +1,35 @@
 import csv
 import random
 
-records=1000000
-print("Making %d records\n" % records)
+from pyspark.sql.types import StructType, StructField, IntegerType
+from pyspark.sql import SparkSession
 
-fieldnames=['id']
+records=10000000
+dim = 846
+print("Generating %d records\n" % records)
+spark = SparkSession.builder.master("local[32]") \
+    .appName("Data Generation").getOrCreate()
 
-for i in range(845):
+fieldnames = []
+for i in range(dim):
   fieldnames.append('f-' + str(i))
-
 fieldnames.append('label')
-print(fieldnames[300:320])
 
-writer = csv.DictWriter(open("large.csv", "w"), fieldnames=fieldnames)
-
-writer.writerow(dict(zip(fieldnames, fieldnames)))
-for i in range(0, records):
-  row = {}
+def map_func(x):
+  row = []
   for f in fieldnames:
-    if f == 'id':
-      row[f] = i
-    elif f == 'label':
-      row[f] = str(random.randint(0, 1))
+    if f == 'label':
+      row.append(random.randint(0, 1))
     else:
-      row[f] = str(random.randint(0,100))
-  writer.writerow(row)
+      row.append(random.randint(0,100))
+  return row
 
+fields = []
+for f in fieldnames:
+  fields.append(StructField(f, IntegerType(), False))
+
+sc = spark.sparkContext
+rdd = sc.range(0, records).map(map_func)
+schema = StructType(fields)
+data = spark.createDataFrame(rdd, schema)
+data.write.csv("/user/kai/zcg/data/large.csv")

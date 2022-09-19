@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 import tensorflow as tf
 
 from pyspark.ml.feature import StringIndexer,VectorAssembler,StandardScaler
+from pyspark.sql.types import StructType, StructField, IntegerType
 
 from bigdl.orca import init_orca_context, stop_orca_context
 from bigdl.orca import OrcaContext
@@ -18,7 +19,13 @@ data_filepath = "hdfs://172.16.0.105/user/kai/zcg/data/large.csv"
 #Orca
 spark=OrcaContext.get_spark_session()
 
-df = spark.read.csv(data_filepath, inferSchema=True, header=True).repartition(10)
+fields = []
+for i in range(846):
+  fields.append(StructField('f-' + str(i), IntegerType(), False))
+fields.append(StructField('label', IntegerType(), False))
+schema = StructType(fields)
+
+df = spark.read.schema(schema).csv(data_filepath)
 
 assembler = VectorAssembler(inputCols=df.columns[:-1], outputCol="features")
 df = assembler.transform(df)
@@ -51,7 +58,7 @@ def get_model(config):
 
 batch_size=16000
 # Orca
-est = Estimator.from_keras(model_creator=get_model, backend="spark", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
+est = Estimator.from_keras(model_creator=get_model, backend="tf2", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
 est.fit(data=train,
         batch_size=batch_size,
         epochs=10,
@@ -61,10 +68,11 @@ est.fit(data=train,
 #         validation_data=val_data_creator,
 #         validation_steps=test_rows // batch_size)
 
-est.save("hdfs://172.16.0.105:8020/user/kai/zcg/model.h5", save_format="h5")
+est.save("hdfs://172.16.0.105:8020/user/kai/zcg/model.h5")
 
 # tf_model = est.get_model()
 
 # tf_model.save("hdfs://ads-stage-new/user/e092315/model.h5")
 
 est.shutdown()
+
