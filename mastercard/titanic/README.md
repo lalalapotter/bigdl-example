@@ -12,8 +12,14 @@ Please follow the steps to run the example.
   wget https://oss.sonatype.org/content/repositories/snapshots/com/intel/analytics/bigdl/bigdl-assembly-spark_2.4.6/2.1.0-SNAPSHOT/bigdl-assembly-spark_2.4.6-2.1.0-20220828.122449-192.zip
   unzip bigdl-assembly-spark_2.4.6-2.1.0-20220828.122449-192.zip
   ```
+
+3. Pack the environment.
   
-3. Submit application.
+  ```shell
+  conda pack -o environment.tar.gz
+  ```
+  
+4. Submit application.
   ```shell
   ./spark-submit.sh
   ```
