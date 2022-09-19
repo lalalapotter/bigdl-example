@@ -55,7 +55,7 @@ def get_model(config):
 
 batch_size=16000
 
-est = Estimator.from_keras(model_creator=get_model, backend="tf2", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
+est = Estimator.from_keras(model_creator=get_model, backend="ray", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
 est.fit(data=train,
         batch_size=batch_size,
         epochs=10,
