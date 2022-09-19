@@ -1,8 +1,6 @@
-from pyspark.sql import SparkSession
-import tensorflow as tf
-
 from pyspark.ml.feature import StringIndexer,VectorAssembler,StandardScaler
 from pyspark.sql.types import StructType, StructField, IntegerType
+import tensorflow as tf
 
 from bigdl.orca import init_orca_context, stop_orca_context
 from bigdl.orca import OrcaContext
@@ -16,7 +14,6 @@ sc = init_orca_context(cluster_mode="spark-submit")
 
 data_filepath = "hdfs://172.16.0.105/user/kai/zcg/data/large.csv"
 
-#Orca
 spark=OrcaContext.get_spark_session()
 
 fields = []
@@ -57,7 +54,7 @@ def get_model(config):
     return model
 
 batch_size=16000
-# Orca
+
 est = Estimator.from_keras(model_creator=get_model, backend="tf2", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
 est.fit(data=train,
         batch_size=batch_size,
@@ -65,8 +62,6 @@ est.fit(data=train,
         feature_cols=["scaled_features"],
         label_cols=["label"],
         steps_per_epoch=train_rows // batch_size)
-#         validation_data=val_data_creator,
-#         validation_steps=test_rows // batch_size)
 
 est.save("hdfs://172.16.0.105:8020/user/kai/zcg/model.h5")
 
