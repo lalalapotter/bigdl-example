@@ -42,5 +42,5 @@ rdd = sc.range(0, records).map(map_func)
 schema = StructType(fields)
 data = spark.createDataFrame(rdd, schema)
 
-data.write.csv("/user/kai/zcg/data/multi_task.csv")
+data.write.mode('overwrite').option('header', 'true').csv("/user/kai/zcg/data/multi_task.csv")
 

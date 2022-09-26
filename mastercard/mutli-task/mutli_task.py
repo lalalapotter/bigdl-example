@@ -16,13 +16,8 @@ data_filepath = "hdfs://172.16.0.105/user/kai/zcg/data/multi_task.csv"
 spark=OrcaContext.get_spark_session()
 
 dim = 846
-fields = []
-for i in range(dim):
-  fields.append(StructField('f-' + str(i), IntegerType(), False))
-fields.append(StructField('output', IntegerType(), False))
-schema = StructType(fields)
 
-df = spark.read.option("inferSchema", "true").csv(data_filepath)
+df = spark.read.option("inferSchema", "true").option('header', 'true').csv(data_filepath)
 
 # assembler for input_3
 assembler_input_3 = VectorAssembler(inputCols=df.columns[:dim], outputCol="input_3")
