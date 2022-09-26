@@ -8,58 +8,31 @@ from bigdl.orca import init_orca_context, stop_orca_context
 from bigdl.orca import OrcaContext
 from bigdl.orca.learn.tf2 import Estimator
 
-import random
 
-# Orca
 sc = init_orca_context(cluster_mode="spark-submit")
 
-data_filepath = "hdfs://172.16.0.105/user/kai/zcg/data/large.csv"
+data_filepath = "hdfs://172.16.0.105/user/kai/zcg/data/multi_task.csv"
 
-
-def concat(df1, df2):
-    from pyspark.sql.functions import monotonically_increasing_id as mi
-    id = mi()
-    df1 = df1.withColumn("match_id", id)
-    df2 = df2.withColumn("match_id", id)
-    return df2.join(df1, df1.match_id==df2.match_id, 'inner').drop(df1.match_id)
-
-#Orca
 spark=OrcaContext.get_spark_session()
 
+dim = 846
 fields = []
-for i in range(846):
+for i in range(dim):
   fields.append(StructField('f-' + str(i), IntegerType(), False))
 fields.append(StructField('output', IntegerType(), False))
 schema = StructType(fields)
 
-df = spark.read.schema(schema).csv(data_filepath)
-#generate input_3
-assembler = VectorAssembler(inputCols=df.columns[:-1], outputCol="features")
-df = assembler.transform(df)
-scaler = StandardScaler(inputCol="features", outputCol="input_3", withStd=True, withMean=True)
-train = scaler.fit(df).transform(df)
+df = spark.read.option("inferSchema", "true").csv(data_filepath)
 
-# generate decoder_4
-decoder = train.withColumnRenamed("input_3", "decoder_4")
+# assembler for input_3
+assembler_input_3 = VectorAssembler(inputCols=df.columns[:dim], outputCol="input_3")
+df = assembler_input_3.transform(df)
+
+#assembler for decoder_4
+assembler_decoder_4 = VectorAssembler(inputCols=df.columns[dim:2*dim], outputCol="decoder_4")
+train = assembler_decoder_4.transform(df)
 
 train_rows = train.count()
-
-# generate input_1
-rdd = sc.range(0, train_rows).map(
-    lambda x: [random.randint(0, 4)])
-schema = StructType([StructField("input_1", IntegerType(), False)])
-input_1 = spark.createDataFrame(rdd, schema)
-
-# generate input_2
-rdd = sc.range(0, train_rows).map(
-    lambda x: [random.randint(0, 4)])
-schema = StructType([StructField("input_2", IntegerType(), False)])
-input_2 = spark.createDataFrame(rdd, schema)
-
-# concat
-train = concat(train, input_1)
-train = concat(train, input_2)
-train = concat(train, decoder)
 
 batch_size = 16000
 
@@ -127,7 +100,7 @@ def model_creator(config):
 
 
 # Orca
-est = Estimator.from_keras(model_creator=model_creator, backend="ray", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
+est = Estimator.from_keras(model_creator=model_creator, backend="ray", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=32)
 est.fit(data=train,
         batch_size=batch_size,
         epochs=1,
@@ -136,4 +109,3 @@ est.fit(data=train,
         steps_per_epoch=train_rows // batch_size)
 
 est.shutdown()
-
