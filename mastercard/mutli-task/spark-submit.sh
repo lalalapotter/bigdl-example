@@ -8,7 +8,7 @@ spark-submit \
     --executor-memory 40g \
     --driver-memory 10g \
     --executor-cores 4 \
-    --num-executors 32 \
+    --num-executors 8 \
     --conf spark.driver.extraClassPath=./deps/assembly/* \
     --conf spark.executor.extraClassPath=./deps/assembly/* \
     --py-files ./deps/python/bigdl-spark_2.4.6-2.1.0-SNAPSHOT-python-api.zip \
