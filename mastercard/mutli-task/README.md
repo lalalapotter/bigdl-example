@@ -33,4 +33,11 @@ Please follow the steps to run the example.
     ./spark-submit.sh
     ```
 
+6. Monitor application with TensorBoard.
+
+   You should set the environment variable in `tensorboard.sh` according to the instruction of [TensorFlow on Hadoop](https://github.com/tensorflow/examples/blob/tflmm/v0.2.4/community/en/docs/deploy/hadoop.md), and update the HDFS path as well.
+   ```
+   ./tensorboard.sh
+   ```
+
 Note that, if you are using bigdl-2.0, please use `tf2` backend instead of `ray` and use the bigdl-2.0 dependencies. Other than that, you don't need to modify any code.
