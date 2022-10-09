@@ -96,11 +96,14 @@ def model_creator(config):
 
 # Orca
 est = Estimator.from_keras(model_creator=model_creator, backend="ray", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
+tf_callback = tf.keras.callbacks.TensorBoard(log_dir="hdfs://172.16.0.105:8020/user/kai/zcg/logs")
+
 est.fit(data=train,
         batch_size=batch_size,
-        epochs=1,
+        epochs=10,
         feature_cols=["input_1", "input_2", "input_3"],
         label_cols=["decoder_4", "output"],
-        steps_per_epoch=train_rows // batch_size)
+        steps_per_epoch=train_rows // batch_size,
+        callbacks=[tf_callback])
 
 est.shutdown()
