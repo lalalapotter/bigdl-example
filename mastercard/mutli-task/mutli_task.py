@@ -93,6 +93,25 @@ def model_creator(config):
 
     return model
 
+from typing import Dict, Optional
+
+class BatchTensorBoard(tf.keras.callbacks.TensorBoard):
+
+    def _implements_train_batch_hooks(self) -> bool:
+        return super()._implements_train_batch_hooks() or isinstance(
+            self.update_freq, int
+        )
+
+    def on_train_batch_end(
+        self,
+        batch: int,
+        logs: Optional[Dict[str, float]] = None,
+    ) -> None:
+        super().on_train_batch_end(batch, logs)
+        if batch % self.update_freq == 0 and logs is not None:
+            with tf.summary.record_if(True), self._train_writer.as_default():
+                for name, value in logs.items():
+                    tf.summary.scalar("batch_" + name, value, step=self._train_step)
 
 # Orca
 est = Estimator.from_keras(model_creator=model_creator, backend="ray", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
