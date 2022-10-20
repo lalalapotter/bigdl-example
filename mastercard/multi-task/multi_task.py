@@ -32,6 +32,15 @@ train_rows = train.count()
 batch_size = 16000
 
 def model_creator(config):
+    import os
+    import json
+    import mlflow
+    tf_config_str = os.environ.get('TF_CONFIG')
+    tf_config_dict  = json.loads(tf_config_str)
+    if tf_config_dict["task"]["index"] == 0 and tf_config_dict["task"]["type"] == "worker":
+        print("set mlflow auto log in worker 0...")
+        mlflow.set_tracking_uri("http://172.16.0.107:56789")
+    mlflow.tensorflow.autolog()
     """Stream 1: latest_dw_product_cd"""
     input_1 = tf.keras.Input(shape=(1,), name='input_1')
     embedding_layer_input_1 = tf.keras.layers.Embedding(250, 32, input_length=1)(input_1) # assuming 250 cards
@@ -114,7 +123,7 @@ class BatchTensorBoard(tf.keras.callbacks.TensorBoard):
                     tf.summary.scalar("batch_" + name, value, step=self._train_step)
 
 # Orca
-est = Estimator.from_keras(model_creator=model_creator, backend="ray", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
+est = Estimator.from_keras(model_creator=model_creator, backend="spark", model_dir="hdfs://172.16.0.105:8020/user/kai/zcg/", workers_per_node=2)
 tf_callback = tf.keras.callbacks.TensorBoard(log_dir="hdfs://172.16.0.105:8020/user/kai/zcg/logs")
 
 est.fit(data=train,
