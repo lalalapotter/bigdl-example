@@ -40,4 +40,10 @@ Please follow the steps to run the example.
    ./tensorboard.sh
    ```
 
+7. Monitor application with Mlflow.
+
+   You should set the HDFS path in `mlflow-server.sh` and start it before running the application with following command.
+   ```
+   ./mlflow-server.sh
+   ```
 Note that, if you are using bigdl-2.0, please use `tf2` backend instead of `ray` and use the bigdl-2.0 dependencies. Other than that, you don't need to modify any code.
