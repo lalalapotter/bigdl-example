@@ -57,5 +57,25 @@ best_config = auto_xgb_clf.get_best_config()
 
 print(best_config)
 
-#best_model.save("hdfs://dw-prod-new/das/coe/hsh/e092315/models/xgboost.pkl")
+import tempfile
+import uuid
+
+from bigdl.dllib.utils.file_utils import is_local_path
+from bigdl.dllib.utils.file_utils import append_suffix
+from bigdl.orca.data.file import put_local_file_to_remote
+
+def save_model(model, path):
+    if is_local_path(path):
+        model.saveModel(path)
+    else:
+        file_name = str(uuid.uuid1())
+        file_name = append_suffix(file_name, path)
+        temp_path = os.path.join(tempfile.gettempdir(), file_name)
+        try:
+            model.save_model(temp_path)
+            put_local_file_to_remote(temp_path, path)
+        finally:
+            os.remove(temp_path)
+
+save_model(model, "hdfs:///user/kai/zcg/model/xgb_automl.model")
 stop_orca_context()
