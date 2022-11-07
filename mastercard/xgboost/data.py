@@ -1,7 +1,7 @@
 import csv
 import random
 from tqdm import trange
-from pyspark.sql.types import StructType, StructField, IntegerType
+from pyspark.sql.types import StructType, StructField, IntegerType, FloatType
 from pyspark.sql import SparkSession
 
 records=10000000
