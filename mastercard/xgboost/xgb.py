@@ -16,6 +16,10 @@ df = spark.read.option("inferSchema", "true").option('header', 'true').csv(data_
 dim = 846
 assembler = VectorAssembler(inputCols=df.columns[:dim], outputCol="features")
 df = assembler.transform(df)
+
+from pyspark.sql import functions as F
+sparse_to_dense_udf = F.udf(lambda x: DenseVector(x), VectorUDT())
+df = df.withColumn("features", sparse_to_dense_udf(F.col("features")))
 df = df.withColumnRenamed("output", "label")
 train, test = df.randomSplit([0.8, 0.2], seed=24)
 
