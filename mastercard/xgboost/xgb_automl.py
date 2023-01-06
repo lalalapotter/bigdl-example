@@ -57,6 +57,7 @@ best_config = auto_xgb_clf.get_best_config()
 
 print(best_config)
 
+import os
 import tempfile
 import uuid
 
@@ -77,5 +78,5 @@ def save_model(model, path):
         finally:
             os.remove(temp_path)
 
-save_model(model, "hdfs:///user/kai/zcg/model/xgb_automl.model")
+save_model(best_model, "hdfs:///user/kai/zcg/model/xgb_automl.model")
 stop_orca_context()
