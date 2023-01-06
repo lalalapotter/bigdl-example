@@ -53,6 +53,10 @@ auto_xgb_clf.fit(data=train_df,
                  label_cols=label_cols)
 
 best_model = auto_xgb_clf.get_best_model()
+print("----------feature score-----------")
+print(best_model.get_booster().get_fscore())
+print("----------feature importances-----------")
+print(best_model.feature_importances_)
 best_config = auto_xgb_clf.get_best_config()
 
 print(best_config)
