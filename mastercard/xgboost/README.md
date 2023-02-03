@@ -21,7 +21,7 @@ Please follow the steps to run the example.
 
 4. Generate random data using `data.py`.
 
-    You should change the path in data.py to your own HDFS path, and replace the HDFS path in xgb.py and xgb_automl.py as well.
+    You should change the path in data.py to your own HDFS path, and replace the HDFS path in python files as well.
   
     ```shell
     python data.py
