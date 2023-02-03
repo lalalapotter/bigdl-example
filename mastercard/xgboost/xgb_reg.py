@@ -29,49 +29,14 @@ if __name__ == '__main__':
               "min_child_weight": 30, "reg_lambda": 1, "scale_pos_weight": 2,
               "subsample": 1, "objective": "reg:squarederror"}
 
-    import os
-    import tempfile
-    import uuid
-
-    from bigdl.dllib.utils.file_utils import is_local_path, append_suffix
-    from bigdl.orca.data.file import put_local_file_to_remote, get_remote_file_to_local
-
-    def save_model(model, path):
-        if is_local_path(path):
-            model.save(path)
-        else:
-            file_name = str(uuid.uuid1())
-            file_name = append_suffix(file_name, path)
-            temp_path = os.path.join(tempfile.gettempdir(), file_name)
-            try:
-                model.save(temp_path)
-                put_local_file_to_remote(temp_path, path)
-            finally:
-                os.remove(temp_path)
-
-    def load_model(path):
-        model = None
-        if is_local_path(path):
-            model = XGBRegressorModel.load(path)
-        else:
-            file_name = str(uuid.uuid1())
-            file_name = append_suffix(file_name, path)
-            temp_path = os.path.join(tempfile.gettempdir(), file_name)
-            get_remote_file_to_local(path, temp_path)
-            try:
-                model = XGBRegressorModel.load(temp_path)
-            finally:
-                os.remove(temp_path)
-        return model
-
     for eta in [0.1]:
         for max_depth in [6]:
             for num_round in [200]:
                 params.update({"eta": eta, "max_depth": max_depth, "num_round": num_round})
                 regressor = XGBRegressor(params)
                 xgbmodel = regressor.fit(train)
-                save_model(xgbmodel, "hdfs:///user/kai/zcg/model/xgb_reg.model")
-                xgbmodel = load_model("hdfs:///user/kai/zcg/model/xgb_reg.model")
+                xgbmodel.save("hdfs:///user/kai/zcg/model/xgb_reg.model")
+                xgbmodel = XGBRegressorModel.load("hdfs:///user/kai/zcg/model/xgb_reg.model")
                 xgbmodel.setFeaturesCol("features")
                 predicts = xgbmodel.transform(test).drop("features")
                 predicts.cache()
