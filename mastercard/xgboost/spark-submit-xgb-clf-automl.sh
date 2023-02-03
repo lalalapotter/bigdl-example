@@ -4,14 +4,13 @@ spark-submit \
     --archives ./environment.tar.gz#environment \
     --master yarn \
     --queue root.users.root \
-    --deploy-mode cluster \
-    --executor-memory 40g \
-    --driver-memory 10g \
-    --executor-cores 4 \
-    --num-executors 32 \
     --conf spark.driver.extraClassPath=./deps/assembly/* \
     --conf spark.executor.extraClassPath=./deps/assembly/* \
     --py-files ./deps/python/bigdl-spark_2.4.6-2.2.0-python-api.zip \
     --jars ./deps/jars/bigdl-assembly-spark_2.4.6-2.2.0-jar-with-dependencies.jar \
-    titanic_large.py
-
+    --deploy-mode cluster \
+    --executor-memory 40g \
+    --driver-memory 10g \
+    --executor-cores 2 \
+    --num-executors 32 \
+    xgb_clf_automl.py

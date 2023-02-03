@@ -5,12 +5,12 @@ Please follow the steps to run the example.
     mkdir deps
     ```
 
-2. Download dependencies from [link-for-spark-2.4.6](https://oss.sonatype.org/content/repositories/snapshots/com/intel/analytics/bigdl/bigdl-assembly-spark_2.4.6/2.1.0-SNAPSHOT/bigdl-assembly-spark_2.4.6-2.1.0-20220828.122449-192.zip) and unzip it to deps directory.
+2. Download dependencies from [link-for-spark-2.4.6](https://repo1.maven.org/maven2/com/intel/analytics/bigdl/bigdl-assembly-spark_2.4.6/2.2.0/bigdl-assembly-spark_2.4.6-2.2.0-fat-jars.zip) and unzip it to deps directory.
   
     ```shell
     cd deps
-    wget https://oss.sonatype.org/content/repositories/snapshots/com/intel/analytics/bigdl/bigdl-assembly-spark_2.4.6/2.1.0-SNAPSHOT/bigdl-assembly-spark_2.4.6-2.1.0-20220828.122449-192.zip
-    unzip bigdl-assembly-spark_2.4.6-2.1.0-20220828.122449-192.zip
+    wget https://repo1.maven.org/maven2/com/intel/analytics/bigdl/bigdl-assembly-spark_2.4.6/2.2.0/bigdl-assembly-spark_2.4.6-2.2.0-fat-jars.zip
+    unzip bigdl-assembly-spark_2.4.6-2.2.0-fat-jars.zip
     ```
 
 3. Pack the environment.
@@ -30,9 +30,15 @@ Please follow the steps to run the example.
 5. Submit application.
  
     ```shell
-    # submit xgb application
-    ./spark-submit-xgb.sh
+    # submit xgb clf application
+    ./spark-submit-xgb-clf.sh
 
-    # submit xgb automl application
-    ./spark-submit-xgb-automl.sh
+    # submit xgb clf automl application
+    ./spark-submit-xgb-clf-automl.sh
+
+    # submit xgb reg application
+    ./spark-submit-xgb-reg.sh
+
+    # submit xgb reg automl application
+    ./spark-submit-xgb-reg-automl.sh
     ```

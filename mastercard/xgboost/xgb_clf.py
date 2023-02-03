@@ -1,16 +1,14 @@
 from pyspark.ml.linalg import DenseVector, VectorUDT
-from pyspark.ml.evaluation import BinaryClassificationEvaluator, MulticlassClassificationEvaluator
-from pyspark.ml.feature import StringIndexer,VectorAssembler,StandardScaler
+from pyspark.ml.feature import VectorAssembler
 
 from bigdl.dllib.nnframes.tree_model import *
 from bigdl.dllib.utils.log4Error import *
-from bigdl.orca import OrcaContext, init_orca_context, stop_orca_context
+from bigdl.orca import init_orca_context, stop_orca_context, OrcaContext
 
 
-# init orca context
 sc = init_orca_context("spark-submit")
-# load and preprocess dataset
-data_filepath = "hdfs://172.16.0.105/user/kai/zcg/data/multi_task.csv"
+
+data_filepath = "hdfs://172.16.0.105/user/kai/zcg/data/synthetic_sparse_10w_846.csv"
 spark = OrcaContext.get_spark_session()
 df = spark.read.option("inferSchema", "true").option('header', 'true').csv(data_filepath)
 dim = 846
@@ -27,11 +25,11 @@ params = {"tree_method": 'hist', "eta": 0.1, "gamma": 0.1,
           "min_child_weight": 30, "reg_lambda": 1, "scale_pos_weight": 2,
           "subsample": 1, "objective": "binary:logistic"}
 # train
+import os
 import tempfile
 import uuid
 
-from bigdl.dllib.utils.file_utils import is_local_path
-from bigdl.dllib.utils.file_utils import append_suffix
+from bigdl.dllib.utils.file_utils import is_local_path, append_suffix
 from bigdl.orca.data.file import put_local_file_to_remote, get_remote_file_to_local
 
 
@@ -75,18 +73,6 @@ for eta in [0.1]:
             predicts = xgbmodel.transform(test).drop("features")
             predicts.cache()
             predicts.show(5, False)
-
-            evaluator = BinaryClassificationEvaluator(labelCol="label",
-                                                      rawPredictionCol="rawPrediction")
-            auc = evaluator.evaluate(predicts, {evaluator.metricName: "areaUnderROC"})
-
-            evaluator2 = MulticlassClassificationEvaluator(labelCol="label",
-                                                           predictionCol="prediction")
-            acc = evaluator2.evaluate(predicts, {evaluator2.metricName: "accuracy"})
-            print(params)
-            print("AUC: %.2f" % (auc * 100.0))
-            print("Accuracy: %.2f" % (acc * 100.0))
-
             predicts.unpersist(blocking=True)
 
 stop_orca_context()

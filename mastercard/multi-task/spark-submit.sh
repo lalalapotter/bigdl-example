@@ -11,7 +11,7 @@ spark-submit \
     --num-executors 8 \
     --conf spark.driver.extraClassPath=./deps/assembly/* \
     --conf spark.executor.extraClassPath=./deps/assembly/* \
-    --py-files ./deps/python/bigdl-spark_2.4.6-2.1.0-SNAPSHOT-python-api.zip \
-    --jars ./deps/assembly/bigdl-dllib-spark_2.4.6-2.1.0-SNAPSHOT-jar-with-dependencies.jar,./deps/assembly/bigdl-orca-spark_2.4.6-2.1.0-SNAPSHOT-jar-with-dependencies.jar \
+    --py-files ./deps/python/bigdl-spark_2.4.6-2.2.0-python-api.zip \
+    --jars ./deps/jars/bigdl-assembly-spark_2.4.6-2.2.0-jar-with-dependencies.jar \
     multi_task.py
 
