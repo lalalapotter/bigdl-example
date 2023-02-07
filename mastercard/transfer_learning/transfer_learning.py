@@ -8,10 +8,10 @@ from bigdl.orca import init_orca_context, stop_orca_context
 from bigdl.orca import OrcaContext
 from bigdl.orca.learn.tf2 import Estimator
 
-def generate_classification_dataset(records, dim, sc, spark):
+def generate_classification_dataset(records, dim, sc):
     # generate synthetic dataset for binary classification
     print("Making %d records\n" % records)
-
+    spark = OrcaContext.get_spark_session()
     fieldnames = []
     for i in range(dim):
       fieldnames.append('f-' + str(i))
@@ -56,10 +56,10 @@ def generate_classification_dataset(records, dim, sc, spark):
     train, test = df.randomSplit([0.8, 0.2], 24)
     return train, test
 
-def generate_regression_dataset(records, dim, sc, spark):
+def generate_regression_dataset(records, dim, sc):
     # generate synthetic dataset for regression
     print("Making %d records\n" % records)
-
+    spark = OrcaContext.get_spark_session()
     fieldnames = []
     for i in range(dim):
       fieldnames.append('f-' + str(i))
@@ -221,9 +221,8 @@ def get_transfer_learning_model(batch_size, train_data_size, bigdl=False):
 
 if __name__ == "__main__":
     sc = init_orca_context(cluster_mode="spark-submit")
-    spark = OrcaContext.get_spark_session()
     # generate classification dataset
-    train, test = generate_classification_dataset(10000, 846, sc, spark)
+    train, test = generate_classification_dataset(10000, 846, sc)
     train_rows = train.count()
     test_rows = test.count()
     batch_size = 160
@@ -240,7 +239,7 @@ if __name__ == "__main__":
     est.save(filepath=model_path)
     est.shutdown()
     # generate regression dataset
-    train, test = generate_regression_dataset(10000, 846, sc, spark)
+    train, test = generate_regression_dataset(10000, 846, sc)
     train_rows = train.count()
     test_rows = test.count()
     est = Estimator.from_keras(model_creator=get_transfer_learning_model(batch_size, train_rows, True), config=config, backend="ray", workers_per_node=2)
