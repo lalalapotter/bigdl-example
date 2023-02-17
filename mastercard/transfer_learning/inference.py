@@ -251,8 +251,16 @@ if __name__ == "__main__":
     # inference
     result = est.predict(data=test,
                          batch_size=batch_size,
-                         feature_cols=["input_1", "input_2", "input_3"],
-                         steps=test_rows // batch_size)
+                         feature_cols=["input_1", "input_2", "input_3"])
+
     for row in result.select(["prediction"]).collect()[:5]:
         print("prediction: ", row[0])
+
+    result.write.save("hdfs:///user/kai/zcg/regression_inference.parquet", format="parquet", mode="overwrite")
+
+    spark = OrcaContext.get_spark_session()
+    loaded_result = spark.read.load("hdfs://user/kai/zcg/regression_inference.parquet")
+    for row in loaded_result.select(["prediction"]).collect()[:5]:
+        print("prediction: ", row[0])
+
     est.shutdown()
